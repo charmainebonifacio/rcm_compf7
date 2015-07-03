@@ -67,9 +67,7 @@ ByVal strOutPath As String) As Boolean
             FileCount = FileCount + 1
             Set wbOrig = Workbooks.Open(objFILE.Path)
             Set OrigSheet = wbOrig.Worksheets(1)
-            'Pos = InStr(OrigSheet.Name, "-")
-            'TxtFile = reDefineName(Left(OrigSheet.Name, Pos - 1))
-            TxtFile = OrigSheet.Name
+            TxtFile = reDefineName(OrigSheet.Name)
             GridFile = TxtFile
             logtxt = "Processing grid file: " & TxtFile
             logfile.WriteLine logtxt
@@ -192,3 +190,4 @@ Function reDefineName(fName As String) As String
     reDefineName = Temp
     
 End Function
+

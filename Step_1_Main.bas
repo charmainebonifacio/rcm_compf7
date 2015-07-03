@@ -47,7 +47,6 @@ Function RCM_COMPF7_MAIN()
     
     ' Initialize Variables
     SummaryTitle = "Zonal Statistics Macro Diagnostic Summary"
-    CFDIR = "CFOUT"
 
     ' Disable all the pop-up menus
     Application.ScreenUpdating = False
@@ -58,18 +57,20 @@ Function RCM_COMPF7_MAIN()
     '---------------------------------------------------------------------
     UserSelectedFolder = GetFolder
     Debug.Print UserSelectedFolder
+    If Len(UserSelectedFolder) = 0 Then GoTo Cancel
     MAINFolder = ReturnFolderName(UserSelectedFolder)
     Debug.Print MAINFolder
 
     '---------------------------------------------------------------------
     ' II. CREATE A COMPOSITE FILE for each file in SUBFOLDER in HAOUT
     '---------------------------------------------------------------------
+    CFDIR = MAINFolder & "_" & "CFOUT"
     Call CreateNewFolder(UserSelectedFolder, CFDIR)    ' Create the Composite File Directory
     CFOUT = ReturnSubFolder(UserSelectedFolder, CFDIR)
     
     ' Setup Log File
     Dim logfilename As String, logtextfile As String
-    logfilename = "rcm_log.txt"
+    logfilename = MAINFolder & "rcm_log.txt"
     logtextfile = CFOUT & logfilename
     If Right(CFOUT, 1) <> "\" Then logtextfile = CFOUT & "\" & logfilename
 
@@ -100,7 +101,9 @@ Function RCM_COMPF7_MAIN()
     Set objFSOlog = Nothing
     
 Cancel:
-
+    If Len(UserSelectedFolder) = 0 Then
+        MsgBox "No folder selected.", vbOKOnly, SummaryTitle
+    End If
 End Function
 '---------------------------------------------------------------------------------------
 ' Date Created : May 15, 2014
