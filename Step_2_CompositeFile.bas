@@ -3,7 +3,7 @@ Attribute VB_Name = "Step_2_CompositeFile"
 ' Date Created : May 15, 2014
 ' Created By   : Charmaine Bonifacio
 '---------------------------------------------------------------------
-' Date Edited  : May 23, 2014
+' Date Edited  : October 23, 2014
 ' Edited By    : Charmaine Bonifacio
 ' Comments By  : Charmaine Bonifacio
 '---------------------------------------------------------------------
@@ -16,14 +16,16 @@ Attribute VB_Name = "Step_2_CompositeFile"
 ' Parameters   : String, String
 ' Returns      : Boolean
 '---------------------------------------------------------------------
-Function ProcessCompositeFiles(ByVal strPath As String, ByVal strOutPath As String) As Boolean
+Function ProcessCompositeFiles(ByVal strPath As String, _
+ByVal strOutPath As String) As Boolean
 
     Dim objFolder As Object, objFSO As Object
     Dim stream As TextStream
     Dim wbOrig As Workbook, OrigSheet As Worksheet
     Dim wbMaster As Workbook, MasterSht As Worksheet
     Dim Pos As Integer
-    Dim TxtFile As String, LastLine As String, fileName As String
+    Dim TxtFile As String, GridFile As String
+    Dim LastLine As String, fileName As String
     Dim LastRow As Long, LastCol As Long, NewLastRow As Long
     Dim DateData() As String
     Dim Precip() As String
@@ -56,17 +58,28 @@ Function ProcessCompositeFiles(ByVal strPath As String, ByVal strOutPath As Stri
     For Each objFILE In objFolder.Files
         Debug.Print "Checking file..."
         Debug.Print objFILE
-
+        logtxt = "Checking file..."
+        logfile.WriteLine logtxt
+        logtxt = objFILE
+        logfile.WriteLine logtxt
+        
         If UCase(Right(objFILE.Path, (Len(objFILE.Path) - InStrRev(objFILE.Path, ".")))) = UCase("csv") Then
             FileCount = FileCount + 1
             Set wbOrig = Workbooks.Open(objFILE.Path)
             Set OrigSheet = wbOrig.Worksheets(1)
-            Pos = InStr(OrigSheet.Name, "_")
-            TxtFile = reDefineName(Left(OrigSheet.Name, Pos - 1))
+            'Pos = InStr(OrigSheet.Name, "-")
+            'TxtFile = reDefineName(Left(OrigSheet.Name, Pos - 1))
+            TxtFile = OrigSheet.Name
+            GridFile = TxtFile
+            logtxt = "Processing grid file: " & TxtFile
+            logfile.WriteLine logtxt
             
             OrigSheet.Activate
 
             fileName = ReturnOutputFile(strOutPath, "comp_" & TxtFile)
+            logtxt = "Processing composite file: " & fileName
+            logfile.WriteLine logtxt
+            
             Set stream = objFSO.CreateTextFile(fileName, True)
             
             Call FindLastRowColumn(LastRow, LastCol)
@@ -122,11 +135,18 @@ Function ProcessCompositeFiles(ByVal strPath As String, ByVal strOutPath As Stri
                 End If
                 stream.Write OutputText(i)
             Next i
+            ' Save as a txt file!
+            Call SaveTXT(wbOrig, OrigSheet, strOutPath, GridFile)
+            logtxt = "Saving new grid file: " & TxtFile
+            logfile.WriteLine logtxt
             wbOrig.Close SaveChanges:=False
             stream.Close
         End If
     Next
+    ' Check how many files were processed.
     Debug.Print FileCount
+    logtxt = "This macro processed # of files: " & FileCount
+    logfile.WriteLine logtxt
     
     If FileCount = 0 Then ProcessCompositeFiles = False
     If FileCount > 1 Then ProcessCompositeFiles = True
@@ -172,4 +192,3 @@ Function reDefineName(fName As String) As String
     reDefineName = Temp
     
 End Function
-
