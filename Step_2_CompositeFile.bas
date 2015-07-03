@@ -88,8 +88,8 @@ Function ProcessCompositeFiles(ByVal strPath As String, ByVal strOutPath As Stri
                 Tmax(i) = Format(Range("C1").Offset(i, 0).Value, "00.0")
                 Tmin(i) = Format(Range("D1").Offset(i, 0).Value, "00.0")
                 SolRad(i) = Format(Range("E1").Offset(i, 0).Value, "0.00")
-                RelHum(i) = Format(Range("G1").Offset(i, 0).Value, "0.00")
-                SunHours(i) = Format(Range("F1").Offset(i, 0).Value, "0.00")
+                RelHum(i) = Format(Range("F1").Offset(i, 0).Value, "0.00")
+                SunHours(i) = Format(Range("G1").Offset(i, 0).Value, "0.00")
                 WindSpd(i) = Format(Range("H1").Offset(i, 0).Value, "0.00")
                 
                 ' Define Spacing
