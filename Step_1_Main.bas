@@ -7,7 +7,7 @@ Public appSTATUS As String
 ' Date Created : May 15, 2014
 ' Created By   : Charmaine Bonifacio
 '---------------------------------------------------------------------------------------
-' Date Edited  : October 23, 2014
+' Date Edited  : July 3, 2015
 ' Edited By    : Charmaine Bonifacio
 ' Comments By  : Charmaine Bonifacio
 '---------------------------------------------------------------------------------------
@@ -26,27 +26,19 @@ Function RCM_COMPF7_MAIN()
     Dim ProcessingTime As Long
     Dim MessageSummary As String, SummaryTitle As String
     
-    Dim UserSelectedFolder As String, DBFDIR As String
-    Dim MAINFolder As String, compareIndex As Integer
-    Dim PROGDIR As String, ABREFDIR As String
-    Dim outDIR As String, OUTFDIR As String
-    Dim ZSDIR As String, HADIR As String
-    Dim BATDIR As String, CFDIR As String
-    Dim TMPDIR As String, AB10KDIR As String
+    Dim UserSelectedFolder As String
+    Dim MAINFolder As String
+    Dim CFDIR As String
     Dim CopiedFiles As Long
-    
-    Dim MainOUT As String, ZSOUT As String, HAOUT As String
-    Dim AB10KOUT As String, CFOUT As String, TMPOUT As String
-    Dim BATOUT As String, ABREFIN As String
-    Dim CheckABFolder As Boolean, CheckOUTFolder As Boolean
-    Dim CheckZSFolder As Boolean, CheckHAFolder As Boolean
+    Dim MainOUT As String
+    Dim CFOUT As String
     Dim ResultCF As Boolean
     Dim subARRAY() As String, outARRAY() As String
     Dim refIDArray() As String
     Dim refIndex As Integer
     
     ' Initialize Variables
-    SummaryTitle = "Zonal Statistics Macro Diagnostic Summary"
+    SummaryTitle = "Diagnostic Summary"
 
     ' Disable all the pop-up menus
     Application.ScreenUpdating = False
@@ -62,7 +54,7 @@ Function RCM_COMPF7_MAIN()
     Debug.Print MAINFolder
 
     '---------------------------------------------------------------------
-    ' II. CREATE A COMPOSITE FILE for each file in SUBFOLDER in HAOUT
+    ' II. SETUP LOGFILE
     '---------------------------------------------------------------------
     CFDIR = MAINFolder & "_" & "CFOUT"
     Call CreateNewFolder(UserSelectedFolder, CFDIR)    ' Create the Composite File Directory
@@ -77,25 +69,29 @@ Function RCM_COMPF7_MAIN()
     Set objFSOlog = CreateObject("Scripting.FileSystemObject")
     Set logfile = objFSOlog.CreateTextFile(logtextfile, True)
     
-    ' Maintain log starting from here
+	'---------------------------------------------------------------------
+    ' III. Maintain log starting from here
+	'---------------------------------------------------------------------
     logfile.WriteLine " [ Start of Program. ] "
     logfile.WriteLine "Selected directory: " & UserSelectedFolder
     logfile.WriteLine "Main directory: " & MAINFolder
     logfile.WriteLine "Output directory: " & CFOUT
-
-    ResultCF = RCM_COMPF7_CompositeFile(MAINFolder, CFOUT)
     
-    '---------------------------------------------------------------------
-    ' V. Clean up output directory by deleting TMPOUT and BATOUT folders.
-    '---------------------------------------------------------------------
+	ResultCF = RCM_COMPF7_CompositeFile(MAINFolder, CFOUT)
+    
     logfile.WriteLine " [ End of Program. ] "
+	
+    '---------------------------------------------------------------------
+	' IV. Total Program Processing Time
+    '---------------------------------------------------------------------
     end_time = Now()
-
     ProcessingTime = DateDiff("n", CDate(start_time), CDate(end_time))
     MessageSummary = MacroTimer(ProcessingTime)
     MsgBox MessageSummary, vbOKOnly, SummaryTitle
 
-    ' Close Log File
+	'---------------------------------------------------------------------
+    ' V. Close Log File
+	'---------------------------------------------------------------------
     logfile.Close
     Set logfile = Nothing
     Set objFSOlog = Nothing
@@ -105,11 +101,12 @@ Cancel:
         MsgBox "No folder selected.", vbOKOnly, SummaryTitle
     End If
 End Function
+
 '---------------------------------------------------------------------------------------
 ' Date Created : May 15, 2014
 ' Created By   : Charmaine Bonifacio
 '---------------------------------------------------------------------------------------
-' Date Edited  : October 23, 2014
+' Date Edited  : July 3, 2015
 ' Edited By    : Charmaine Bonifacio
 ' Comments By  : Charmaine Bonifacio
 '---------------------------------------------------------------------------------------
@@ -124,15 +121,13 @@ Function RCM_COMPF7_CompositeFile(ByVal sourceDIR As String, ByVal outDIR As Str
     
     ' Disable all the pop-up menus
     Application.ScreenUpdating = False
-    
-    '---------------------------------------------------------------------
-    ' III. Create a the final Composite Files
-    '---------------------------------------------------------------------
+
     appSTATUS = "In progress: Creating new composite files..."
     Application.StatusBar = appSTATUS
     logfile.WriteLine appSTATUS
     
     Result = ProcessCompositeFiles(sourceDIR, outDIR)
+	
     If Result = False Then RCM_COMPF7_CompositeFile = False
     If Result = True Then RCM_COMPF7_CompositeFile = True
     
